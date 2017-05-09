@@ -9,4 +9,37 @@
 
 		<param name="trigger_value" value="600" type="int"/>
 	</node>
+
+	<node pkg="pwm_trigger" type="trigger" name="pwm_trigger" clear_params="true" output="screen">
+		<param name="topic_pwm_out" value="pwm" type="str"/>
+		<param name="topic_rc_in" value="/mavros/rc/in" type="str"/>
+		<param name="topic_trigger" value="/co2_monitor/trigger" type="str"/>
+
+		<param name="rc_trigger_channel" value="5" type="int"/>
+		<param name="rc_trigger_value" value="1500" type="int"/>
+
+		<param name="pwm_gpio" value="18" type="int"/>
+		<param name="pwm_out_high" value="1900" type="int"/>
+		<param name="pwm_out_low" value="1100" type="int"/>
+	</node>
+
+	<!-- vim: set ft=xml noet : -->
+	<!-- example launch script for PX4 based FCU's -->
+
+	<arg name="fcu_url" default="/dev/serial/by-name/px4-serial:921600" />
+	<arg name="gcs_url" default="" />
+	<arg name="tgt_system" default="1" />
+	<arg name="tgt_component" default="1" />
+	<arg name="log_output" default="screen" />
+
+	<include file="$(find mavros)/launch/node.launch">
+		<arg name="pluginlists_yaml" value="/home/pi/catkin_ws/src/plume_sampler/launch/px4_pluginlists.yaml" />
+		<arg name="config_yaml" value="/home/pi/catkin_ws/src/plume_sampler/launch/px4_config.yaml" />
+
+		<arg name="fcu_url" value="$(arg fcu_url)" />
+		<arg name="gcs_url" value="$(arg gcs_url)" />
+		<arg name="tgt_system" value="$(arg tgt_system)" />
+		<arg name="tgt_component" value="$(arg tgt_component)" />
+		<arg name="log_output" value="$(arg log_output)" />
+	</include>
 </launch>
