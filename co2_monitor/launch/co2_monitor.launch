@@ -1,10 +1,12 @@
 <launch>
-	<node pkg="co2_monitor" type="co2_monitor" name="co2_monitor" clear_params="true" output="screen"/>
-		<param name="topic_reading" value="reading" type="str"/>
+	<node pkg="co2_monitor" type="monitor" name="co2_monitor" clear_params="true" output="screen">
+		<param name="topic_filtered" value="reading/filtered" type="str"/>
+		<param name="topic_raw" value="reading/raw" type="str"/>
 		<param name="topic_trigger" value="trigger" type="str"/>
 
 		<param name="port" value="/dev/ttyUSB0" type="str"/>
-		<param name="baud" value="115200" type="int"/>
+		<param name="baud" value="9600" type="int"/>
 
-		<param name="trigger_value" value="800" type="int"/>
+		<param name="trigger_value" value="1600" type="int"/>
+	</node>
 </launch>

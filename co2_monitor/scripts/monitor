@@ -5,7 +5,7 @@ from co2_monitor.monitor_node import CO2Monitor
 
 if __name__ == '__main__':
 	#Initialize
-	rospy.init_node('co2_monitor', anonymous=True)
+	rospy.init_node('co2_monitor')
 
 	monitor = CO2Monitor()
 
@@ -17,5 +17,5 @@ if __name__ == '__main__':
 	except rospy.ROSInterruptException:
 		#Shutdown
 		rospy.loginfo("Shutting down...")
-		pl.shutdown()
+		monitor.shutdown()
 		rospy.loginfo("Done!")

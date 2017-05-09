@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(kinetic_sample_pub_py)
+project(co2_monitor)
 
 ## Add support for C++11, supported in ROS Kinetic and newer
 # add_definitions(-std=c++11)
@@ -159,7 +159,7 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
-  scripts/publisher
+  scripts/monitor
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

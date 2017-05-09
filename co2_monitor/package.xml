@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>kinetic_sample_pub_py</name>
+  <name>co2_monitor</name>
   <version>0.0.0</version>
   <description>The kinetic_sample_pub_py package</description>
 
