@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+import rospy
+from co2_monitor.monitor_node import CO2Monitor
+
+if __name__ == '__main__':
+	#Initialize
+	rospy.init_node('co2_monitor', anonymous=True)
+
+	monitor = CO2Monitor()
+
+	#Loop here until quit
+	try:
+		while not rospy.is_shutdown():
+			monitor.run()
+
+	except rospy.ROSInterruptException:
+		#Shutdown
+		rospy.loginfo("Shutting down...")
+		pl.shutdown()
+		rospy.loginfo("Done!")
