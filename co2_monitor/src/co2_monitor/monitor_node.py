@@ -5,7 +5,7 @@ import rospy
 from std_msgs.msg import Float64
 from std_msgs.msg import Bool
 
-from co2_monitor.srv import Calibrate
+from co2_monitor.srv import *
 
 class CO2Monitor():
 	def __init__(self):
@@ -29,6 +29,8 @@ class CO2Monitor():
 		self.port_baud = rospy.get_param('~buad', '9600')
 		self.trigger_value = rospy.get_param('~trigger_value', 800)
 
+		self.serial_buffer = ""
+
 		try:
 			self.ser = serial.Serial(self.port_name, self.port_baud)  # open serial port
 			rospy.loginfo("Serial connected at: %s" % self.port_name)
@@ -38,39 +40,71 @@ class CO2Monitor():
 			rospy.loginfo(e)
 			rospy.signal_shutdown(e)
 
+		self.serial_check_rate = 20.0 #Hz
+		self.serial_check = rospy.Timer(rospy.Duration(1.0 / self.serial_check_rate), self.run)
+
 	def shutdown(self):
-		self.ser.close()             # close port
+		try:
+			self.ser.close()  # close port
+		except NameError:
+			pass
+
+		try:
+			self.serial_check.shutdown()
+		except NameError:
+			pass
 
 	def do_calibrate(self, req):
-		self.ser.write("test")	#TODO!
+		#Put the calibration number in a string, cut to 4 digits max, then pad with 0s
+		s = (str(req.value)[:4]).zfill(4)
+		rospy.loginfo("Performing zero-point calibration at: %s" % s)
+		self.ser.write("X %s\r\n" % s)
+
+		str_in = self.ser.readline()
+		rospy.loginfo("Result: %s" % str_in)
+
+		result = CalibrateResponse(False)
+
+		if str_in == "X 32997\r\n":	#TODO: Check this
+			result = CalibrateResponse(True)
+
+		return result
+
 
 	def run(self):
 		try:
 			#Read the serial and parse numbers
-			str = self.ser.readline()
-			nums = [int(s) for s in str.split() if s.isdigit()]
+			if self.ser.inWaiting() > 0:
+				self.serial_buffer += self.ser.read(self.ser.inWaiting())
 
-			#Sometimes the serial read may give errored data
-			# so ignore it if there isn't just 2 numbers parsed
-			if len(nums) == 2:
-				msg_raw_out = Float64()
-				msg_filtered_out = Float64()
-				msg_trigger_out = Bool()
+				#If we have an entire string
+				if self.serial_buffer.endswith("\n"):	#TODO: Check this
+					nums = [int(s) for s in self.serial_buffer.split() if s.isdigit()]
 
-				msg_filtered_out.data = nums[0]
-				msg_raw_out.data = nums[1]
+					#Sometimes the serial read may give errored data
+					# so ignore it if there isn't just 2 numbers parsed
+					if len(nums) == 2:
+						msg_raw_out = Float64()
+						msg_filtered_out = Float64()
+						msg_trigger_out = Bool()
 
-				#Check to see if we should activate the trigger
-				if nums[0] > self.trigger_value:
-					msg_trigger_out.data = True
-				else:
-					msg_trigger_out.data = False
+						msg_filtered_out.data = nums[0]
+						msg_raw_out.data = nums[1]
 
-				self.pub_raw.publish(msg_raw_out)
-				self.pub_filtered.publish(msg_filtered_out)
-				self.pub_trigger.publish(msg_trigger_out)
-			else:
-				rospy.loginfo("Error parsing data!")
+						#Check to see if we should activate the trigger
+						if nums[0] > self.trigger_value:
+							msg_trigger_out.data = True
+						else:
+							msg_trigger_out.data = False
+
+						self.pub_raw.publish(msg_raw_out)
+						self.pub_filtered.publish(msg_filtered_out)
+						self.pub_trigger.publish(msg_trigger_out)
+					else:
+						rospy.loginfo("Error parsing data!")
+
+					#Reset the buffer
+					self.serial_buffer = ""
 
 		except serial.serialutil.SerialException as e:
 			#rospy.loginfo(e)

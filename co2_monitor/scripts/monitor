@@ -11,8 +11,7 @@ if __name__ == '__main__':
 
 	#Loop here until quit
 	try:
-		while not rospy.is_shutdown():
-			monitor.run()
+		rospy.spin():
 
 	except rospy.ROSInterruptException:
 		#Shutdown
