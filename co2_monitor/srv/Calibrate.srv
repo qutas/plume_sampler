@@ -1,0 +1,6 @@
+# Calling this service will tell the node to do
+# a known-value calibration of the CO2 sensor
+
+uint64 value
+---
+bool success
