@@ -1,0 +1,14 @@
+<launch>
+	<node pkg="pwm_trigger" type="trigger" name="pwm_trigger" clear_params="true" output="screen">
+		<param name="topic_pwm_out" value="pwm" type="str"/>
+		<param name="topic_rc_in" value="/mavros/rc/in" type="str"/>
+		<param name="topic_trigger" value="/co2_monitor/trigger" type="str"/>
+
+		<param name="rc_trigger_channel" value="5" type="int"/>
+		<param name="rc_trigger_value" value="1500" type="int"/>
+
+		<param name="pwm_gpio" value="17" type="int"/>
+		<param name="pwm_out_high" value="1900" type="int"/>
+		<param name="pwm_out_low" value="1100" type="int"/>
+	</node>
+</launch>
