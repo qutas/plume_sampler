@@ -9,7 +9,6 @@ from co2_monitor.srv import *
 
 class CO2Monitor():
 	def __init__(self):
-
 		#Set up the publishers
 		topic_name_filtered = rospy.get_name() + '/' + rospy.get_param('~topic_filtered', '~reading/filtered')
 		topic_name_raw = rospy.get_name() + '/' + rospy.get_param('~topic_raw', '~reading/raw')
@@ -40,7 +39,7 @@ class CO2Monitor():
 			rospy.loginfo(e)
 			rospy.signal_shutdown(e)
 
-		self.serial_check_rate = 20.0 #Hz
+		self.serial_check_rate = 40.0 #Hz
 		self.serial_check = rospy.Timer(rospy.Duration(1.0 / self.serial_check_rate), self.run)
 
 	def shutdown(self):
@@ -60,26 +59,30 @@ class CO2Monitor():
 		rospy.loginfo("Performing zero-point calibration at: %s" % s)
 		self.ser.write("X %s\r\n" % s)
 
-		str_in = self.ser.readline()
-		rospy.loginfo("Result: %s" % str_in)
-
+		str_in = "X 32997"	#XXX: This should be a serial read, or a check in the timer event for the correct response!
 		result = CalibrateResponse(False)
 
-		if str_in == "X 32997\r\n":	#TODO: Check this
+		rospy.loginfo(str_in)
+
+		if "X 32997" in str_in:
 			result = CalibrateResponse(True)
+			rospy.loginfo("Calibration success!")
+		else:
+			rospy.loginfo("Calibration failure!")
 
 		return result
 
-
-	def run(self):
+	def run(self, timer_event):
 		try:
 			#Read the serial and parse numbers
 			if self.ser.inWaiting() > 0:
 				self.serial_buffer += self.ser.read(self.ser.inWaiting())
 
 				#If we have an entire string
-				if self.serial_buffer.endswith("\n"):	#TODO: Check this
-					nums = [int(s) for s in self.serial_buffer.split() if s.isdigit()]
+				if "\n" in self.serial_buffer:
+					lines = self.serial_buffer.split("\n", 1)
+
+					nums = [int(s) for s in lines[0].split() if s.isdigit()]
 
 					#Sometimes the serial read may give errored data
 					# so ignore it if there isn't just 2 numbers parsed
@@ -103,8 +106,8 @@ class CO2Monitor():
 					else:
 						rospy.loginfo("Error parsing data!")
 
-					#Reset the buffer
-					self.serial_buffer = ""
+					#Take the remainder of the input string and place it back for parsing
+					self.serial_buffer = lines[1]
 
 		except serial.serialutil.SerialException as e:
 			#rospy.loginfo(e)

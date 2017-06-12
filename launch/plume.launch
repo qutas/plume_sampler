@@ -1,0 +1,12 @@
+<launch>
+	<node pkg="co2_monitor" type="monitor" name="co2_monitor" clear_params="true" output="screen">
+		<param name="topic_filtered" value="reading/filtered" type="str"/>
+		<param name="topic_raw" value="reading/raw" type="str"/>
+		<param name="topic_trigger" value="trigger" type="str"/>
+
+		<param name="port" value="/dev/serial/by-name/sprintIR-CO2" type="str"/>
+		<param name="baud" value="9600" type="int"/>
+
+		<param name="trigger_value" value="600" type="int"/>
+	</node>
+</launch>

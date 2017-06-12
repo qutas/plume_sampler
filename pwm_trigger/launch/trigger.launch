@@ -7,7 +7,7 @@
 		<param name="rc_trigger_channel" value="5" type="int"/>
 		<param name="rc_trigger_value" value="1500" type="int"/>
 
-		<param name="pwm_gpio" value="17" type="int"/>
+		<param name="pwm_gpio" value="18" type="int"/>
 		<param name="pwm_out_high" value="1900" type="int"/>
 		<param name="pwm_out_low" value="1100" type="int"/>
 	</node>
