@@ -4,6 +4,13 @@ The plume_sampler package is designed with a fairly specific device setup. The b
 - A PWM-based MOSFET (switch to control the sampling equipment to be used with the pwm_trigger package)
 - A px4-based autopilot with a 5+ channel RC controller (for the manual override in the pwm_trigger package)
 
+## ROS Depedancies
+To compile these packages, the following ROS packages will need to be installed:
+- rospy
+- message_generation
+- std_msgs
+- mavros_msgs
+
 ## On-Board Computer
 The on-board computer is expected to be a Raspberry Pi 2, running a ros-compatible OS (Ubuntu). It will need at least 2 (USB) serial ports for it to interface with the autopilot, and also at least 1 free GPIO for the PWM output.
 
