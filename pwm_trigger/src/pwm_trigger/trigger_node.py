@@ -18,6 +18,9 @@ class PWMTrigger():
 		#Set up PWM output params
 		self.rc_trigger_channel = rospy.get_param('~rc_trigger_channel', 5)
 		self.rc_trigger_value = rospy.get_param('~rc_trigger_value', 1500)
+		
+		self.rc_override_channel = rospy.get_param('~rc_override_channel', 6)
+		self.rc_override_value = rospy.get_param('~rc_override_value', 1500)
 
 		self.pwm_out_gpio = rospy.get_param('~pwm_gpio', 17)
 		self.pwm_out_high = rospy.get_param('~pwm_out_high', 1900)
@@ -27,6 +30,7 @@ class PWMTrigger():
 
 		self.trigger_ros = False
 		self.trigger_rc = False
+		self.autotrigger_allow = False
 		self.set_pwm()
 
 		# Set up the subscribers
@@ -50,17 +54,24 @@ class PWMTrigger():
 		self.set_pwm()
 
 	def callback_rc_in(self, msg_in):
-		self.trigger_rc = (msg_in.channels[self.rc_trigger_channel] > self.rc_trigger_value)	#TODO: Check this
+		self.autotrigger_allow = (msg_in.channels[self.rc_override_channel] > self.rc_override_value)
+		self.trigger_rc = (msg_in.channels[self.rc_trigger_channel] > self.rc_trigger_value)
 		self.set_pwm()
 
 	def set_pwm(self):
 		out_value = 0
 		msg_out = UInt16()
 
-		if self.trigger_rc or self.trigger_ros:
-			out_value = self.pwm_out_high
+		if self.autotrigger_allow:
+			if self.trigger_ros:
+				out_value = self.pwm_out_high
+			else:
+				out_value = self.pwm_out_low
 		else:
-			out_value = self.pwm_out_low
+			if self.trigger_rc:
+				out_value = self.pwm_out_high
+			else:
+				out_value = self.pwm_out_low
 
 		#Set the servo
 		self.servo.set_servo_pulsewidth(self.pwm_out_gpio, out_value)
