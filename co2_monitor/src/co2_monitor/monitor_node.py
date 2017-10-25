@@ -39,6 +39,9 @@ class CO2Monitor():
 			rospy.loginfo(e)
 			rospy.signal_shutdown(e)
 
+		self.ser.write("K 1\r\n") #Set to streaming mode
+		#rospy.loginfo("Setting streaming mode: %s" % self.ser.readline())
+
 		self.serial_check_rate = 40.0 #Hz
 		self.serial_check = rospy.Timer(rospy.Duration(1.0 / self.serial_check_rate), self.run)
 
